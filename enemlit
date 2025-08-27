@@ -1,0 +1,981 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Questões ENEM - Literatura</title>
+    <style>
+        /* Estilos de fonte e layout geral */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            padding: 20px;
+        }
+
+        .header {
+            width: 90%;
+            max-width: 1000px;
+            background: linear-gradient(45deg, #2c3e50, #34495e);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            border-radius: 15px 15-px 0 0;
+        }
+
+        .container {
+            max-width: 1000px;
+            width: 90%;
+            background: white;
+            border-radius: 0 0 15px 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Estilos do Quiz */
+        .slide {
+            padding: 30px;
+            min-height: 70vh;
+            display: none;
+        }
+
+        .slide.active {
+            display: block;
+        }
+
+        .question-number {
+            background: #3498db;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            display: inline-block;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+
+        .question-text {
+            line-height: 1.6;
+            margin-bottom: 20px;
+            font-size: 16px;
+        }
+
+        .text-box {
+            background: #f8f9fa;
+            border-left: 4px solid #3498db;
+            padding: 15px;
+            margin: 15px 0;
+            font-style: italic;
+        }
+
+        .alternatives {
+            margin: 20px 0;
+        }
+
+        .alternative {
+            background: #f8f9fa;
+            margin: 8px 0;
+            padding: 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .alternative:hover {
+            background: #e3f2fd;
+            border-color: #2196f3;
+        }
+
+        .alternative.correct {
+            background: #e8f5e8;
+            border-color: #4caf50;
+            color: #2e7d32;
+            font-weight: bold;
+        }
+
+        .alternative.incorrect {
+            background: #ffebee;
+            border-color: #f44336;
+            color: #c62828;
+        }
+
+        .explanation {
+            margin-top: 20px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-left: 4px solid #28a745;
+            border-radius: 8px;
+            display: none;
+        }
+
+        .explanation.show {
+            display: block;
+            animation: slideDown 0.5s ease-out;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .explanation h4 {
+            color: #28a745;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+        }
+
+        .explanation h4:before {
+            content: "✓";
+            margin-right: 8px;
+            font-weight: bold;
+        }
+
+        /* Controles e Botões */
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            background: #f8f9fa;
+            border-top: 1px solid #dee2e6;
+        }
+
+        button {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+        }
+
+        button:disabled {
+            background: #bdc3c7;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .slide-counter {
+            background: #34495e;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+        }
+
+        /* Estilos de slides específicos */
+        .gabarito-slide, .intro-slide, .results-slide {
+            text-align: center;
+        }
+
+        .gabarito-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .gabarito-item {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            border: 2px solid #3498db;
+        }
+
+        .gabarito-item h3 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        .gabarito-item .resposta {
+            font-size: 24px;
+            font-weight: bold;
+            color: #e74c3c;
+        }
+
+        .image-slide {
+            text-align: center;
+        }
+
+        .question-image {
+            max-width: 100%;
+            max-height: 400px;
+            margin: 20px 0;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .name-input {
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            width: 80%;
+            max-width: 300px;
+            margin-top: 20px;
+        }
+
+        .start-button {
+            margin-top: 20px;
+        }
+
+        .results-text h2 {
+            font-size: 2em;
+            color: #2c3e50;
+        }
+
+        .results-text p {
+            font-size: 1.2em;
+            margin-top: 10px;
+        }
+
+        .results-list {
+            list-style: none;
+            text-align: left;
+            margin: 20px auto;
+            max-width: 500px;
+        }
+
+        .results-list li {
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+        }
+
+        .results-list li.correct {
+            background-color: #e8f5e8;
+            color: #2e7d32;
+        }
+
+        .results-list li.incorrect {
+            background-color: #ffebee;
+            color: #c62828;
+        }
+
+        .results-list li::before {
+            font-weight: bold;
+            font-size: 1.2em;
+            margin-right: 10px;
+        }
+        
+        .results-list li.correct::before {
+            content: '✓';
+            color: #4caf50;
+        }
+        
+        .results-list li.incorrect::before {
+            content: '✗';
+            color: #f44336;
+        }
+
+        .restart-button, .gabarito-button {
+            margin-top: 30px;
+        }
+        
+        /* Novos estilos para funcionalidades */
+        .progress-bar-container {
+            width: 100%;
+            height: 10px;
+            background: #e0e0e0;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            background-color: #4caf50;
+            transition: width 0.4s ease-in-out;
+        }
+
+        .info-bar {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .timer {
+            background: rgba(0,0,0,0.5);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>📚 ENEM - Literatura Brasileira</h1>
+        <p>10 Questões Selecionadas - Romantismo e Movimento Abolicionista</p>
+    </div>
+
+    <div class="container">
+        
+        <div class="progress-bar-container">
+            <div class="progress-bar" id="progressBar"></div>
+        </div>
+
+        <div class="info-bar">
+            <div class="timer" id="timer">00:00</div>
+        </div>
+
+        <div class="slide active intro-slide" id="introSlide">
+            <h2>Bem-vindo(a) ao Quiz!</h2>
+            <p>Por favor, digite seu nome para começar:</p>
+            <input type="text" id="userName" class="name-input" placeholder="Seu nome">
+            <button id="startBtn" class="start-button">Iniciar Quiz</button>
+        </div>
+
+        <div class="slide" data-tema="Abolicionismo">
+            <div class="question-number">Questão 1 - ENEM 2024</div>
+            <div class="question-text">
+                <div class="text-box">
+                    <strong>TEXTO I</strong><br>
+                    Neta de Tomásia, uma escravizada alforriada, Chiquinha Gonzaga foi uma das primeiras mulheres a se destacar na música popular brasileira. Entre suas obras mais famosas estão a marcha Ó abre alas, sucesso nos blocos de Carnaval até hoje, e o tango Gaúcho, além de inúmeras peças musicais para teatro e óperas. Chiquinha também teve uma atuação em defesa dos direitos das mulheres e pelo fim da escravatura.
+                </div>
+                <div class="text-box">
+                    <strong>TEXTO II</strong><br>
+                    Depois da estreia de sua peça Gonzaga, em 1867, que tem como um de seus núcleos dramáticos dois escravizados, pai e filha, separados há muitos anos, Castro Alves escreve talvez o maior conjunto de poemas antiescravistas do Romantismo brasileiro, publicados em 1883 no livro Os escravos, doze anos após a sua morte. Os textos Vozes d'África e Navio negreiro, por exemplo, publicados em folhetos, já em 1878, tiveram enorme repercussão desde a sua circulação, a ponto de Afrânio Coutinho (um importante crítico brasileiro) afirmar ter sido Castro Alves, no que diz respeito à poesia antiescravista, um dos primeiros que o Brasil ouviu.
+                </div>
+                <p><strong>Os textos indicam a participação de artistas e intelectuais brasileiros em defesa do(a)</strong></p>
+            </div>
+            <div class="alternatives">
+                <div class="alternative" data-option="A" data-correct="false">A) ação integralista.</div>
+                <div class="alternative" data-option="B" data-correct="false">B) literatura realista.</div>
+                <div class="alternative" data-option="C" data-correct="true">C) movimento abolicionista.</div>
+                <div class="alternative" data-option="D" data-correct="false">D) política indigenista.</div>
+                <div class="alternative" data-option="E" data-correct="false">E) nacionalismo desenvolvimentista.</div>
+            </div>
+            <div class="explanation">
+                <h4>Resposta Correta: C</h4>
+                <p><strong>Explicação:</strong> Os dois textos apresentam claramente artistas brasileiros (Chiquinha Gonzaga e Castro Alves) que se engajaram na luta contra a escravidão. Chiquinha "teve uma atuação em defesa dos direitos das mulheres e pelo fim da escravatura", e Castro Alves escreveu "o maior conjunto de poemas antiescravistas do Romantismo brasileiro", como "Vozes d'África" e "Navio negreiro". Ambos participaram ativamente do <strong>movimento abolicionista</strong> brasileiro.</p>
+            </div>
+        </div>
+
+        <div class="slide" data-tema="Romantismo">
+            <div class="question-number">Questão 2 - ENEM 2010</div>
+            <div class="question-text">
+                <div class="text-box">
+                    <strong>Texto I</strong><br><br>
+                    Se eu tenho de morrer na flor dos anos,<br>
+                    Meu Deus! não seja já;<br>
+                    Eu quero ouvir na laranjeira, à tarde,<br>
+                    Cantar o sabiá!<br><br>
+                    Meu Deus, eu sinto e bem vês que eu morro<br>
+                    Respirando esse ar;<br>
+                    Faz que eu viva, Senhor! dá-me de novo<br>
+                    Os gozos do meu lar!<br><br>
+                    Dá-me os sítios gentis onde eu brincava<br>
+                    Lá na quadra infantil;<br><br>
+                    Dá que eu veja uma vez o céu da pátria,<br>
+                    O céu de meu Brasil!<br><br>
+                    Se eu tenho de morrer na flor dos anos,<br>
+                    Meu Deus! Não seja já!<br>
+                    Eu quero ouvir cantar na laranjeira, à tarde,<br>
+                    Cantar o sabiá!<br><br>
+                    <em>ABREU, C. Poetas românticos brasileiros. São Paulo: Scipione, 1993.</em>
+                </div>
+                <div class="text-box">
+                    <strong>Texto II</strong><br><br>
+                    A ideologia romântica, argamassada ao longo do século XVIII e primeira metade do século XIX, introduziu-se em 1836. Durante quatro decênios, imperaram o "eu", a anarquia, o liberalismo, o sentimentalismo, o nacionalismo, através da poesia, do romance, do teatro e do jornalismo (que fazia sua aparição nessa época).<br><br>
+                    <em>MOISÉS, M. A literatura brasileira através dos textos. São Paulo: Cultrix, 1971 (fragmento).</em>
+                </div>
+                <p><strong>De acordo com as considerações de Massaud Moisés no Texto II, o Texto I centra-se</strong></p>
+            </div>
+            <div class="alternatives">
+                <div class="alternative" data-option="A" data-correct="false">A) no imperativo do "eu", reforçando a ideia de que estar longe do Brasil é uma forma de estar bem, já que o país sufoca o eu lírico.</div>
+                <div class="alternative" data-option="B" data-correct="true">B) no nacionalismo, reforçado pela distância da pátria e pelo saudosismo em relação à paisagem agradável onde o eu lírico vivera a infância.</div>
+                <div class="alternative" data-option="C" data-correct="false">C) na liberdade formal, que se manifesta na opção por versos sem métrica rigorosa e temática voltada para o nacionalismo.</div>
+                <div class="alternative" data-option="D" data-correct="false">D) no fazer anárquico, entendida a poesia como negação do passado e da vida, seja pelas opções formais, seja pelos temas.</div>
+                <div class="alternative" data-option="E" data-correct="false">E) no sentimentalismo, por meio do qual se reforça a alegria presente em oposição à infância, marcada pela tristeza.</div>
+            </div>
+            <div class="explanation">
+                <h4>Resposta Correta: B</h4>
+                <p><strong>Explicação:</strong> O poema de Casimiro de Abreu exemplifica perfeitamente o <strong>nacionalismo romântico</strong> citado por Massaud Moisés. O eu lírico, exilado, expressa intensa saudade da pátria através de elementos tipicamente brasileiros: "sabiá", "laranjeira", "céu do meu Brasil". O saudosismo se manifesta na nostalgia dos "sítios gentis onde eu brincava" e no desejo de rever a paisagem natal. Essa exaltação da natureza pátria e a melancolia do exílio são características centrais do nacionalismo da primeira geração romântica brasileira.</p>
+            </div>
+        </div>
+
+        <div class="slide" data-tema="Realismo">
+            <div class="question-number">Questão 3 - ENEM 2001</div>
+            <div class="question-text">
+                <p>No trecho abaixo, o narrador, ao descrever a personagem, critica sutilmente um outro estilo de época: o romantismo.</p>
+                <div class="text-box">
+                    "Naquele tempo contava apenas uns quinze ou dezesseis anos; era talvez a mais atrevida criatura da nossa raça, e, com certeza, a mais voluntariosa. Não digo que já lhe coubesse a primazia da beleza, entre as mocinhas do tempo, porque isto não é romance, em que o autor sobredoura a realidade e fecha os olhos às sardas e espinhas; mas também não digo que lhe maculasse o rosto nenhuma sarda ou espinha, não. Era bonita, fresca, saía das mãos da natureza, cheia daquele feitiço, precário e eterno, que o indivíduo passa a outro indivíduo, para os fins secretos da criação."<br><br>
+                    <em>ASSIS, Machado de. Memórias Póstumas de Brás Cubas. Rio de Janeiro: Jackson,1957.</em>
+                </div>
+                <p><strong>A frase do texto em que se percebe a crítica do narrador ao romantismo está transcrita na alternativa:</strong></p>
+            </div>
+            <div class="alternatives">
+                <div class="alternative" data-option="A" data-correct="true">A) ... o autor sobredoura a realidade e fecha os olhos às sardas e espinhas ...</div>
+                <div class="alternative" data-option="B" data-correct="false">B) ... era talvez a mais atrevida criatura da nossa raça ...</div>
+                <div class="alternative" data-option="C" data-correct="false">C) Era bonita, fresca, saía das mãos da natureza, cheia daquele feitiço, precário e eterno, ...</div>
+                <div class="alternative" data-option="D" data-correct="false">D) Naquele tempo contava apenas uns quinze ou dezesseis anos ...</div>
+                <div class="alternative" data-option="E" data-correct="false">E) ... o indivíduo passa a outro indivíduo, para os fins secretos da criação.</div>
+            </div>
+            <div class="explanation">
+                <h4>Resposta Correta: A</h4>
+                <p><strong>Explicação:</strong> Machado de Assis, representante do Realismo, critica sutilmente o Romantismo através do narrador. A frase "o autor sobredoura a realidade e fecha os olhos às sardas e espinhas" é uma crítica direta à <strong>idealização romântica</strong>, que embelezava artificialmente a realidade, ignorando imperfeições físicas e aspectos menos poéticos da vida. O narrador realista, ao contrário, propõe uma descrição mais próxima da realidade.</p>
+            </div>
+        </div>
+
+        <div class="slide" data-tema="Romantismo">
+            <div class="question-number">Questão 4 - ENEM 2021</div>
+            <div class="question-text">
+                <div class="text-box">
+                    <strong>Leito de folhas verdes</strong><br><br>
+                    Brilha a lua no céu, brilham estrelas,<br>
+                    Correm perfumes no correr da brisa,<br>
+                    A cujo influxo mágico respira-se<br>
+                    Um quebranto de amor, melhor que a vida!<br><br>
+                    A flor que desabrocha ao romper d'alva<br>
+                    Um só giro do sol, não mais, vegeta:<br>
+                    Eu sou aquela flor que espero ainda<br>
+                    Doce raio do sol que me dê vida.<br><br>
+                    <em>DIAS, G. Antologia poética. Rio de Janeiro: Agir, 1979 (fragmento).</em>
+                </div>
+                <p><strong>Na perspectiva do Romantismo, a representação feminina espelha concepções expressas no poema pela</strong></p>
+            </div>
+            <div class="alternatives">
+                <div class="alternative" data-option="A" data-correct="false">A) reprodução de estereótipos sociais e de gênero.</div>
+                <div class="alternative" data-option="B" data-correct="false">B) presença de traços marcadores de nacionalidade.</div>
+                <div class="alternative" data-option="C" data-correct="false">C) sublimação do desejo por meio da espiritualização.</div>
+                <div class="alternative" data-option="D" data-correct="true">D) correlação feita entre estados emocionais e natureza.</div>
+                <div class="alternative" data-option="E" data-correct="false">E) mudança de paradigmas relacionados à sensibilidade.</div>
+            </div>
+            <div class="explanation">
+                <h4>Resposta Correta: D</h4>
+                <p><strong>Explicação:</strong> O poema de Gonçalves Dias exemplifica uma característica fundamental do Romantismo: a <strong>correlação entre natureza e sentimentos</strong>. O eu lírico feminino se compara à "flor que desabrocha ao romper d'alva" e espera pelo "doce raio do sol". Há uma identificação entre os elementos naturais (lua, estrelas, brisa, flor, sol) e os estados emocionais da mulher, típica da estética romântica que via a natureza como reflexo da alma humana.</p>
+            </div>
+        </div>
+
+        <div class="slide" data-tema="Romantismo">
+            <div class="question-number">Questão 5 - ENEM 2021</div>
+            <div class="question-text">
+                <div class="text-box">
+                    <strong>O laço de fita</strong><br><br>
+                    Não sabes, criança? 'Stou louco de amores...<br>
+                    Prendi meus afetos, formosa Pepita.<br><br>
+                    Mas onde? No templo, no espaço, nas névoas?!<br>
+                    Não rias, prendi-me
+                    Num laço de fita.<br><br>
+                    Na selva sombria de tuas madeixas,<br>
+                    Nos negros cabelos de moça bonita,<br>
+                    Fingindo a serpente qu'enlaça a folhagem,<br><br>
+                    Formoso enroscava-se<br>
+                    O laço de fita.<br><br>
+                    [...]<br><br>
+                    Pois bem! Quando um dia na sombra do vale<br>
+                    Abrirem-me a cova... formosa Pepita!<br><br>
+                    Ao menos arranca meus louros da fronte,<br>
+                    E dá-me por c'roa...<br>
+                    Teu laço de fita.<br><br>
+                    <em>ALVES, C. Espumas flutuantes.</em>
+                </div>
+                <p><strong>Exemplo da lírica de temática amorosa de Castro Alves, o poema constrói imagens caras ao Romantismo. Nesse fragmento, o lirismo romântico se expressa na</strong></p>
+            </div>
+            <div class="alternatives">
+                <div class="alternative" data-option="A" data-correct="false">A) representação infantilizada da figura feminina.</div>
+                <div class="alternative" data-option="B" data-correct="false">B) criatividade inspirada em elementos da natureza.</div>
+                <div class="alternative" data-option="C" data-correct="false">C) opção pela morte como solução para as frustrações.</div>
+                <div class="alternative" data-option="D" data-correct="false">D) ansiedade com as atitudes de indiferença da mulher.</div>
+                <div class="alternative" data-option="E" data-correct="true">E) fixação por signos de fusão simbólica com o ser amado.</div>
+            </div>
+            <div class="explanation">
+                <h4>Resposta Correta: E</h4>
+                <p><strong>Explicação:</strong> No poema de Castro Alves, o eu lírico demonstra uma obsessão pelo "laço de fita" da amada, que simboliza a união desejada. O objeto torna-se símbolo de fusão amorosa: o poeta se "prende" no laço, que "enroscava-se" em seus cabelos, e até na morte quer "por coroa... teu laço de fita". Essa <strong>fixação por signos simbólicos</strong> que representem a união com o ser amado é característica do lirismo romântico intenso.</p>
+            </div>
+        </div>
+
+        <div class="slide" data-tema="Romantismo">
+            <div class="question-number">Questão 6 - ENEM 2016</div>
+            <div class="question-text">
+                <div class="text-box">
+                    Estas palavras ecoavam docemente pelos atentos ouvidos de Guaraciaba, e lhe ressoavam n'alma como um hino celestial. Ela sentia-se ao mesmo tempo enternecida e ufana por ouvir aquele altivo e indómito guerreiro pronunciar a seus pés palavras do mais submisso e mavioso amor, e respondeu-lhe cheia de emoção: — Itajiba, tuas falas são mais doces para minha alma que os favos da jataí, ou o suco delicioso do abacaxi. Elas fazem-me palpitar o coração como a flor que estremece ao bafejo perfumado das brisas da manhã. Tu me amas, bem o sei, e o amor que te consagro também não é para ti nenhum segredo, embora meus lábios não o tenham revelado. A flor, mesmo nas trevas, se trai pelo seu perfume; a fonte do deserto, escondida entre os rochedos, se revela por seu murmúrio ao caminhante sequioso. Desde os primeiros momentos tu viste meu coração abrir-se para ti, como a flor do manacá aos primeiros raios do sol.<br><br>
+                    <em>GUIMARÃES, B. O ermitão de Muquém.</em>
+                </div>
+                <p><strong>O texto de Bernardo Guimarães é representativo da estética romântica. Entre as marcas textuais que evidenciam a filiação a esse movimento literário está em destaque a</strong></p>
+            </div>
+            <div class="alternatives">
+                <div class="alternative" data-option="A" data-correct="true">A) referência a elementos da natureza local.</div>
+                <div class="alternative" data-option="B" data-correct="false">B) exaltação de Itajiba como nobre guerreiro.</div>
+                <div class="alternative" data-option="C" data-correct="false">C) cumplicidade entre o narrador e a paisagem.</div>
+                <div class="alternative" data-option="D" data-correct="false">D) representação idealizada do cenário descrito.</div>
+                <div class="alternative" data-option="E" data-correct="false">E) expressão da desilusão amorosa de Guaraciaba.</div>
+            </div>
+            <div class="explanation">
+                <h4>Resposta Correta: A</h4>
+                <p><strong>Explicação:</strong> O texto de Bernardo Guimarães está repleto de elementos da <strong>natureza brasileira</strong>: "favos da jataí" (abelha nativa), "suco delicioso do abacaxi", "flor do manacá", "bafejo perfumado das brisas". Essa valorização da fauna e flora nacionais é uma marca distintiva do Romantismo brasileiro, que buscava criar uma identidade cultural própria através da exaltação da natureza local, diferenciando-se dos modelos europeus.</p>
+            </div>
+        </div>
+
+        <div class="slide" data-tema="Romantismo">
+            <div class="question-number">Questão 7 - ENEM 2014</div>
+            <div class="question-text">
+                <div class="text-box">
+                    <strong>Soneto</strong><br><br>
+                    Oh! Páginas da vida que eu amava,<br>
+                    Rompei-vos! nunca mais! tão desgraçado!...<br>
+                    Ardei, lembranças doces do passado!<br>
+                    Quero rir-me de tudo que eu amava!<br><br>
+                    E que doido que eu fui! como eu pensava<br>
+                    Em mãe, amor de irmã! em sossegado
+                    Adormecer na vida acalentado<br>
+                    Pelos lábios que eu tímido beijava!<br><br>
+                    Embora — é meu destino. Em treva densa<br>
+                    Dentro do peito a existência finda<br>
+                    Pressinto a morte na fatal doença!<br><br>
+                    A mim a solidão da noite infinda!<br>
+                    Possa dormir o trovador sem crença.<br>
+                    Perdoa minha mãe — eu te amo ainda!<br><br>
+                    <em>AZEVEDO, A. Lira dos vinte anos. São Paulo: Martins Fontes, 1996</em>
+                </div>
+                <p><strong>A produção de Álvares de Azevedo situa-se na década de 1850, período conhecido na literatura brasileira como Ultrarromantismo. Nesse poema, a força expressiva da exacerbação romântica identifica-se com o(a)</strong></p>
+            </div>
+            <div class="alternatives">
+                <div class="alternative" data-option="A" data-correct="false">A) amor materno, que surge como possibilidade de salvação para o eu lírico.</div>
+                <div class="alternative" data-option="B" data-correct="false">B) saudosismo da infância, indicado pela menção às figuras da mãe e da irmã.</div>
+                <div class="alternative" data-option="C" data-correct="false">C) construção de versos irônicos e sarcásticos, apenas com aparência melancólica.</div>
+                <div class="alternative" data-option="D" data-correct="false">D) presença do tédio sentido pelo eu lírico, indicado pelo seu desejo de dormir.</div>
+                <div class="alternative" data-option="E" data-correct="true">E) fixação do eu lírico pela ideia da morte, o que o leva a sentir um tormento constante.</div>
+            </div>
+            <div class="explanation">
+                <h4>Resposta Correta: E</h4>
+                <p><strong>Explicação:</strong> Este soneto de Álvares de Azevedo exemplifica perfeitamente o <strong>mal do século</strong> ou Ultrarromantismo. O eu lírico demonstra uma obsessão mórbida: "Pressinto a morte na fatal doença", "A mim a solidão da noite infinda", "Possa dormir o trovador sem crença". A morte não é vista como alívio, mas como uma presença constante que gera tormento e angústia existencial, característica central da segunda geração romântica brasileira.</p>
+            </div>
+        </div>
+
+        <div class="slide image-slide" data-tema="Romantismo">
+            <div class="question-number">Questão 8 - ENEM 2021</div>
+            <div class="question-text">
+                <p><strong>Observe a obra abaixo, que retrata uma cena de Caramuru, célebre poema épico brasileiro:</strong></p>
+                <div style="background: #f8f9fa; padding: 20px; margin: 20px 0; border-radius: 10px; text-align: center;">
+                    <img src="data:image/webp;base64,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" alt="Pintura de tema romântico" class="question-image">
+                    <p style="font-size: 12px; color: #666; margin-top: 10px;">
+                        MEIRELLES, V. Moema. Óleo sobre tela, 129 cm x 190 cm. Masp, São Paulo, 1866.
+                    </p>
+                </div>
+                <p><strong>Nessa obra, que retrata uma cena de Caramuru, célebre poema épico brasileiro, a filiação à estética romântica manifesta-se na</strong></p>
+            </div>
+            <div class="alternatives">
+                <div class="alternative" data-option="A" data-correct="false">A) exaltação do retrato fiel da beleza feminina.</div>
+                <div class="alternative" data-option="B" data-correct="false">B) tematização da fragilidade humana diante da morte.</div>
+                <div class="alternative" data-option="C" data-correct="false">C) ressignificação de obras do cânone literário nacional.</div>
+                <div class="alternative" data-option="D" data-correct="true">D) representação dramática e idealizada do corpo da índia.</div>
+                <div class="alternative" data-option="E" data-correct="false">E) oposição entre a condição humana e a natureza primitiva.</div>
+            </div>
+            <div class="explanation">
+                <h4>Resposta Correta: D</h4>
+                <p><strong>Explicação:</strong> A pintura romântica que retrata uma cena do <em>Caramuru</em> apresenta a figura indígena feminina de forma <strong>idealizada e dramática</strong>, características típicas da estética romântica. O Romantismo brasileiro tendia a representar o indígena (especialmente a mulher indígena) não de forma realista, mas segundo padrões estéticos idealizados, criando uma imagem heroica e poetizada que atendia aos valores e gostos da época, mais do que à realidade etnográfica.</p>
+            </div>
+        </div>
+
+        <div class="slide" data-tema="Modernismo">
+            <div class="question-number">Questão 9 - ENEM 2021</div>
+            <div class="question-text">
+                <div class="text-box">
+                    <strong>Texto I - Meus oito anos (Oswald de Andrade)</strong><br><br>
+                    Oh que saudades que eu tenho<br>
+                    Da aurora de minha vida<br>
+                    Das horas<br>
+                    De minha infância<br>
+                    Que os anos não trazem mais<br><br>
+                    Naquele quintal de terra<br>
+                    Da Rua de Santo Antônio<br>
+                    Debaixo da bananeira<br>
+                    Sem nenhum laranjais<br><br>
+                    Eu tinha doces visões<br>
+                    Da cocaína da infância<br>
+                    Nos banhos de astro-rei<br>
+                    Do quintal de minha ânsia<br>
+                    A cidade progredia<br>
+                    Em roda de minha casa<br>
+                    Que os anos não trazem mais<br><br>
+                    Debaixo da bananeira<br>
+                    Sem nenhum laranjais
+                </div>
+                <div class="text-box">
+                    <strong>Texto II - Meus oito anos (Casimiro de Abreu)</strong><br><br>
+                    Oh! Que saudades que tenho<br>
+                    Da aurora da minha vida,<br>
+                    Da minha infância querida<br>
+                    Que os anos não trazem mais!<br>
+                    Que amor, que sonhos, que flores,<br>
+                    Naquelas tardes fagueiras
+                    À sombra das bananeiras,<br>
+                    Debaixo dos laranjais!<br><br>
+                    Como são belos os dias<br>
+                    Do despontar da existência!<br>
+                    - Respira a alma inocência<br>
+                    Como perfumes a flor;<br>
+                    O mar é - lago sereno,<br>
+                    O céu - um manto azulado,<br>
+                    O mundo - um sonho dourado,<br>
+                    A vida - um hino d'amor!<br><br>
+                    [fragmento]
+                </div>
+                <p><strong>A relação de intertextualidade entre os textos se dá de maneira bem clara. Sobre isso, o texto I:</strong></p>
+            </div>
+            <div class="alternatives">
+                <div class="alternative" data-option="A" data-correct="false">A) contraria à nostalgia da infância.</div>
+                <div class="alternative" data-option="B" data-correct="false">B) reafirma a experiência da infância como um momento idealizado.</div>
+                <div class="alternative" data-option="C" data-correct="true">C) ironiza o espaço demonstrando que o eu lírico se distancia dos elementos identitários.</div>
+                <div class="alternative" data-option="D" data-correct="false">D) explora o uso de metáforas sentimentais.</div>
+                <div class="alternative" data-option="E" data-correct="false">E) detalha a experiência da infância como o momento de ascensão moral do ser.</div>
+            </div>
+            <div class="explanation">
+                <h4>Resposta Correta: C</h4>
+                <p><strong>Explicação:</strong> Oswald de Andrade, representante do <strong>Modernismo</strong>, faz uma releitura irônica do poema romântico de Casimiro de Abreu. Enquanto o texto romântico idealiza a infância com "tardes fagueiras", "bananeiras" e "laranjais", Oswald desconstrói poeticamente essa idealização: "Debaixo da bananeira/ Sem nenhum laranjais" (note a ausência dos laranjais românticos). A ironia modernista se manifesta na desmitificação dos elementos identitários românticos, criando um distanciamento crítico em relação à nostalgia sentimental do século XIX.</p>
+            </div>
+        </div>
+
+        <div class="slide" data-tema="Abolicionismo">
+            <div class="question-number">Questão 10 - ENEM 2022</div>
+            <div class="question-text">
+                <div class="text-box">
+                    <strong>A escrava</strong><br><br>
+                    – Admira-me —, disse uma senhora de sentimentos sinceramente abolicionistas —; faz-me até pasmar como se possa sentir, e expressar sentimentos escravocratas, no presente século, no século dezenove! A moral religiosa e a moral cívica aí se erguem, e falam bem alto esmagando a hidra que envenena a família no mais sagrado santuário seu, e desmoraliza, e avilta a nação inteira! Levantai os olhos ao Gólgota, ou percorrei-os em torno da sociedade, e dizei-me:<br><br>
+                    — Para que se deu em sacrifício, o Homem Deus, que ali exalou seu derradeiro alento? Ah! Então não era verdade que seu sangue era o resgate do homem! É então uma mentira abominável ter esse sangue comprado a liberdade!? E depois, olhai a sociedade… Não vedes o abutre que a corrói constantemente!… Não sentis a desmoralização que a enerva, o cancro que a destrói?<br><br>
+                    Por qualquer modo que encaremos a escravidão, ela é, e sempre será um grande mal. Dela a decadência do comércio; porque o comércio e a lavoura caminham de mãos dadas, e o escravo não pode fazer florescer a lavoura; porque o seu trabalho é forçado.<br><br>
+                    <em>REIS, M. F. Úrsula outras obras. Brasília: Câmara dos Deputados, 2018</em>
+                </div>
+                <p><strong>Inscrito na estética romântica da literatura brasileira, o conto descortina aspectos da realidade nacional no século XIX ao</strong></p>
+            </div>
+            <div class="alternatives">
+                <div class="alternative" data-option="A" data-correct="false">A) revelar a imposição de crenças religiosas a pessoas escravizadas.</div>
+                <div class="alternative" data-option="B" data-correct="true">B) apontar a hipocrisia do discurso conservador na defesa da escravidão.</div>
+                <div class="alternative" data-option="C" data-correct="false">C) sugerir práticas de violência física e moral em nome do progresso material.</div>
+                <div class="alternative" data-option="D" data-correct="false">D) relacionar o declínio da produção agrícola e comercial a questões raciais.</div>
+                <div class="alternative" data-option="E" data-correct="false">E) ironizar o comportamento dos proprietários de terra na exploração do trabalho.</div>
+            </div>
+            <div class="explanation">
+                <h4>Resposta Correta: B</h4>
+                <p><strong>Explicação:</strong> Maria Firmina dos Reis, pioneira da literatura abolicionista no Brasil, denuncia a <strong>hipocrisia da sociedade brasileira</strong> do século XIX. O texto expõe a contradição entre os valores cristãos professados ("Levantai os olhos ao Gólgota") e a manutenção da escravidão. A autora questiona como uma sociedade que se diz cristã pode defender a escravidão, quando Cristo morreu pela liberdade de todos. Essa crítica à hipocrisia do discurso conservador, que conciliava religiosidade e escravismo, é uma característica marcante da vertente abolicionista do Romantismo brasileiro.</p>
+            </div>
+        </div>
+        
+        <div class="slide results-slide" id="resultsSlide">
+            <h2>🎉 Resultado do Quiz 🎉</h2>
+            <div class="results-text">
+                <h3 id="resultName"></h3>
+                <p>Tempo total: <span id="totalTime"></span></p>
+                <p id="resultScore"></p>
+                <p id="resultMessage"></p>
+            </div>
+            <ul id="resultsList" class="results-list"></ul>
+            <button id="restartBtn" class="restart-button">Tentar Novamente</button>
+        </div>
+
+        <div class="controls">
+            <button id="prevBtn" onclick="changeSlide(-1)">⬅️ Anterior</button>
+            <span class="slide-counter">
+                <span id="currentSlide">1</span> / <span id="totalSlides">10</span>
+            </span>
+            <button id="nextBtn" onclick="changeSlide(1)">Próximo ➡️</button>
+        </div>
+    </div>
+
+    <script>
+        // Variáveis globais
+        let currentSlideIndex = 0;
+        let score = 0;
+        let userName = "";
+        let quizStartTime;
+        let timerInterval;
+        let isReviewMode = false;
+        
+        const totalQuestions = 10;
+        const slides = document.querySelectorAll('.slide');
+        const questionsStartIndex = 1;
+        const resultsSlideIndex = slides.length - 1;
+        const userAnswers = []; // Armazena true/false para cada questão
+        const userChoices = []; // Armazena a opção escolhida (A, B, C...)
+        
+        // Função para mostrar um slide específico
+        function showSlide(n) {
+            slides.forEach(slide => slide.classList.remove('active'));
+            slides[n].classList.add('active');
+            currentSlideIndex = n;
+            updateControls();
+            updateProgressBar();
+            
+            if (n >= questionsStartIndex && n < resultsSlideIndex) {
+                document.querySelector('.progress-bar-container').style.display = 'block';
+                document.querySelector('.info-bar').style.display = 'flex';
+            } else {
+                document.querySelector('.progress-bar-container').style.display = 'none';
+                document.querySelector('.info-bar').style.display = 'none';
+            }
+        }
+
+        // Função para navegação entre slides
+        function changeSlide(direction) {
+            let nextIndex = currentSlideIndex + direction;
+            
+            if (nextIndex > totalQuestions) {
+                stopTimer();
+                showResults();
+            } else if (nextIndex >= 0 && nextIndex < slides.length) {
+                showSlide(nextIndex);
+                saveState();
+            }
+        }
+
+        // Função para atualizar os botões de controle
+        function updateControls() {
+            if (currentSlideIndex === 0 || currentSlideIndex === resultsSlideIndex) {
+                document.getElementById('prevBtn').style.display = 'none';
+                document.getElementById('nextBtn').style.display = 'none';
+                document.querySelector('.slide-counter').style.display = 'none';
+            } else {
+                document.getElementById('prevBtn').style.display = 'block';
+                document.getElementById('nextBtn').style.display = 'block';
+                document.querySelector('.slide-counter').style.display = 'block';
+
+                document.getElementById('currentSlide').textContent = currentSlideIndex;
+                document.getElementById('totalSlides').textContent = totalQuestions;
+            }
+            
+            if (isReviewMode) {
+                document.getElementById('prevBtn').style.display = 'none';
+                document.getElementById('nextBtn').style.display = 'none';
+            } else {
+                document.getElementById('prevBtn').disabled = (currentSlideIndex === questionsStartIndex);
+                document.getElementById('nextBtn').disabled = (userAnswers[currentSlideIndex - questionsStartIndex] === undefined);
+            }
+        }
+
+        // Função para atualizar a barra de progresso
+        function updateProgressBar() {
+            const progress = ((currentSlideIndex - questionsStartIndex) / totalQuestions) * 100;
+            document.getElementById('progressBar').style.width = `${progress}%`;
+        }
+        
+        // Função para iniciar o cronômetro
+        function startTimer() {
+            quizStartTime = Date.now();
+            timerInterval = setInterval(function() {
+                const elapsedTime = Date.now() - quizStartTime;
+                const totalSeconds = Math.floor(elapsedTime / 1000);
+                const minutes = Math.floor(totalSeconds / 60);
+                const seconds = totalSeconds % 60;
+                document.getElementById('timer').textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            }, 1000);
+        }
+        
+        // Função para parar o cronômetro
+        function stopTimer() {
+            clearInterval(timerInterval);
+        }
+
+        // Função para mostrar os resultados
+        function showResults() {
+            const totalSeconds = Math.floor((Date.now() - quizStartTime) / 1000);
+            const minutes = Math.floor(totalSeconds / 60);
+            const seconds = totalSeconds % 60;
+            document.getElementById('totalTime').textContent = `${minutes} minutos e ${seconds} segundos`;
+            
+            document.getElementById('resultName').textContent = `Parabéns, ${userName}!`;
+            document.getElementById('resultScore').textContent = `Sua pontuação foi: ${score} de ${totalQuestions}`;
+
+            let message = "";
+            if (score === totalQuestions) {
+                message = "Excelente! Você acertou todas as questões!";
+            } else if (score >= totalQuestions * 0.7) {
+                message = "Muito bem! Você teve um ótimo desempenho.";
+            } else if (score >= totalQuestions * 0.5) {
+                message = "Bom trabalho! Continue praticando para melhorar.";
+            } else {
+                message = "Você pode melhorar! Estude mais e tente novamente.";
+            }
+            document.getElementById('resultMessage').textContent = message;
+
+            const resultsList = document.getElementById('resultsList');
+            resultsList.innerHTML = '';
+            userAnswers.forEach((isCorrect, index) => {
+                const li = document.createElement('li');
+                li.textContent = `Questão ${index + 1}: ${isCorrect ? 'Certo' : 'Errado'} (Sua resposta: ${userChoices[index]})`;
+                li.classList.add(isCorrect ? 'correct' : 'incorrect');
+                
+                const reviewBtn = document.createElement('button');
+                reviewBtn.textContent = 'Revisar';
+                reviewBtn.style.marginLeft = '10px';
+                reviewBtn.style.padding = '5px 10px';
+                reviewBtn.style.background = '#8e44ad';
+                reviewBtn.addEventListener('click', () => {
+                    isReviewMode = true;
+                    showSlide(index + questionsStartIndex);
+
+                    // Adiciona o botão de voltar ao resultado quando em modo de revisão
+                    const controls = document.querySelector('.controls');
+                    let backToResultsBtn = document.getElementById('backToResultsBtn');
+                    if (!backToResultsBtn) {
+                        backToResultsBtn = document.createElement('button');
+                        backToResultsBtn.id = 'backToResultsBtn';
+                        backToResultsBtn.textContent = 'Voltar ao Resultado';
+                        backToResultsBtn.style.background = '#e67e22';
+                        controls.appendChild(backToResultsBtn);
+                        backToResultsBtn.addEventListener('click', () => {
+                            showResults();
+                        });
+                    }
+                    backToResultsBtn.style.display = 'block';
+                });
+
+                li.appendChild(reviewBtn);
+                resultsList.appendChild(li);
+            });
+            
+            showSlide(resultsSlideIndex);
+            clearState();
+        }
+
+        // Função para salvar o estado do quiz no localStorage
+        function saveState() {
+            const state = {
+                currentSlideIndex,
+                score,
+                userName,
+                userAnswers,
+                userChoices,
+                quizStartTime
+            };
+            localStorage.setItem('quizState', JSON.stringify(state));
+        }
+
+        // Função para carregar o estado do quiz do localStorage
+        function loadState() {
+            const savedState = localStorage.getItem('quizState');
+            if (savedState) {
+                const state = JSON.parse(savedState);
+                if (confirm("Foi detectado um quiz em progresso. Deseja continuar de onde parou?")) {
+                    currentSlideIndex = state.currentSlideIndex;
+                    score = state.score;
+                    userName = state.userName;
+                    userAnswers.push(...state.userAnswers);
+                    userChoices.push(...state.userChoices);
+                    quizStartTime = state.quizStartTime;
+                    document.getElementById('userName').value = userName;
+                    showSlide(currentSlideIndex);
+                    startTimer();
+                } else {
+                    clearState();
+                }
+            }
+        }
+        
+        // Função para limpar o localStorage
+        function clearState() {
+            localStorage.removeItem('quizState');
+        }
+
+        // Função para reiniciar o quiz
+        function restartQuiz() {
+            score = 0;
+            userAnswers.length = 0;
+            userChoices.length = 0;
+            document.querySelectorAll('.alternative').forEach(alt => {
+                alt.classList.remove('correct', 'incorrect');
+                alt.style.pointerEvents = 'auto';
+            });
+            document.querySelectorAll('.explanation').forEach(exp => {
+                exp.classList.remove('show');
+            });
+            showSlide(0);
+            document.getElementById('userName').value = '';
+            clearState();
+            isReviewMode = false;
+            
+            const backToResultsBtn = document.getElementById('backToResultsBtn');
+            if (backToResultsBtn) backToResultsBtn.style.display = 'none';
+        }
+        
+        // Event listeners
+        document.getElementById('startBtn').addEventListener('click', function() {
+            userName = document.getElementById('userName').value.trim();
+            if (userName) {
+                startTimer();
+                showSlide(questionsStartIndex);
+                saveState();
+            } else {
+                alert("Por favor, digite seu nome para começar.");
+            }
+        });
+
+        document.getElementById('restartBtn').addEventListener('click', function() {
+            restartQuiz();
+        });
+        
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('alternative') && !isReviewMode) {
+                const currentSlideElement = document.querySelector('.slide.active');
+                const alternatives = currentSlideElement.querySelectorAll('.alternative');
+                const explanation = currentSlideElement.querySelector('.explanation');
+                const selectedOption = e.target.getAttribute('data-option');
+                
+                if (userAnswers[currentSlideIndex - questionsStartIndex] === undefined) {
+                    const isCorrect = e.target.getAttribute('data-correct') === 'true';
+                    userAnswers[currentSlideIndex - questionsStartIndex] = isCorrect;
+                    userChoices[currentSlideIndex - questionsStartIndex] = selectedOption;
+                    
+                    if (isCorrect) {
+                        score++;
+                    }
+                    
+                    alternatives.forEach(alt => alt.style.pointerEvents = 'none');
+                    alternatives.forEach(alt => {
+                        const altCorrect = alt.getAttribute('data-correct') === 'true';
+                        if (altCorrect) {
+                            alt.classList.add('correct');
+                        } else {
+                            alt.classList.add('incorrect');
+                        }
+                    });
+                    
+                    if (explanation) {
+                        explanation.classList.add('show');
+                    }
+                    
+                    document.getElementById('nextBtn').disabled = false;
+                    saveState();
+                }
+            }
+        });
+
+        // Inicialização do quiz
+        showSlide(0);
+        loadState();
+    </script>
+</body>
+</html>
